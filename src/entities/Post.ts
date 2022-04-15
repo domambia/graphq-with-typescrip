@@ -13,10 +13,10 @@ export class Post {
   title!: string;
 
   @Field(() => String)
-  @Property({ type: "date", default: "NOW()" })
+  @Property({ type: "date", default: `NOW()` })
   createdAt = new Date();
 
   @Field(() => String)
-  @Property({ type: "date", onUpdate: () => new Date() })
+  @Property({ type: "date", onUpdate: () => `NOW()` })
   updatedAt = new Date();
 }

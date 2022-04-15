@@ -32,6 +32,7 @@
     "@mikro-orm/mariadb": "^5.1.2",
     "@mikro-orm/migrations": "^5.1.2",
     "apollo-server-express": "^3.6.7",
+    "argon2": "^0.28.5",
     "cors": "^2.8.5",
     "express": "^4.17.3",
     "graphql": "^15.8.0",

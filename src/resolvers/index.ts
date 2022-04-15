@@ -1,1 +1,2 @@
-export * from "./post-resolvers";
+export * from "./post-resolver";
+export * from "./user-resolver";
