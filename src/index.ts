@@ -11,14 +11,14 @@ const main = async () => {
 
   //   console.log("orm", orm);
 
-  //   const post = orm.em.create(Post, {
-  //     createdAt: new Date(),
-  //     title: "Some other title is here",
-  //     updatedAt: new Date(),
-  //   });
+  const post = orm.em.create(Post, {
+    createdAt: new Date(),
+    title: "OMAMBIA THE PROGRAMMER",
+    updatedAt: new Date(),
+  });
 
-  //   orm.em.persistAndFlush(post);
-  //   console.log(post.title);
+  orm.em.persistAndFlush(post);
+  console.log(post.title);
   //   orm.em.nativeInsert(Post, { title: "Some toel" });
 };
 

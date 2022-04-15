@@ -8,7 +8,7 @@ export class Post {
   @Property({ type: "text" })
   title!: string;
 
-  @Property({ type: "date", default: Date.now() })
+  @Property({ type: "date", default: "NOW()" })
   createdAt = new Date();
 
   @Property({ type: "date", onUpdate: () => new Date() })
