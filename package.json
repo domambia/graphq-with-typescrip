@@ -5,14 +5,35 @@
   "main": "index.js",
   "scripts": {
     "watch": "tsc  -w",
-    "start": "npm run watch && node dist/src/index.js"
+    "dev": "ts-node-dev src/index.ts",
+    "start": "nodemon dist/src/index.js",
+    "migrations:create": "npx mikro-orm migration:create",
+    "migrations:fresh": "npx mikro-orm migration:fresh",
+    "migrations:up": "npx mikro-orm migration:up",
+    "migrations:down": "npx mikro-orm migration:down",
+    "migrations:list": "npx mikro-orm migration:list",
+    "migrations:pending": "npx mikro-orm migration:pending"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^17.0.24",
+    "nodemon": "^2.0.15",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "@mikro-orm/cli": "^5.1.2",
+    "@mikro-orm/core": "^5.1.2",
+    "@mikro-orm/mariadb": "^5.1.2",
+    "@mikro-orm/migrations": "^5.1.2"
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "configPaths": [
+      "./src/mikro-orm.config.ts",
+      "./dist/mikro-orm.config.js"
+    ]
   }
 }
