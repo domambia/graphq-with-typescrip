@@ -1,7 +1,12 @@
 import { MikroORM } from "@mikro-orm/core";
+import express from "express";
+import cors from "cors";
+import { ApolloServer } from "apollo-server-express";
+import { buildSchema } from "type-graphql";
 import MIKRO_CONFIG from "./mikro-orm.config";
 import { __prod__ } from "./constants";
-import { Post } from "./entities";
+
+import { HelloResolver, PostResolver } from "./resolvers";
 
 const main = async () => {
   const orm = await MikroORM.init(MIKRO_CONFIG);
@@ -9,16 +14,49 @@ const main = async () => {
   // automatically run the migrations
   await orm.getMigrator().up();
 
-  //   console.log("orm", orm);
+  const app = express();
 
-  const post = orm.em.create(Post, {
-    createdAt: new Date(),
-    title: "OMAMBIA THE PROGRAMMER",
-    updatedAt: new Date(),
+  // add middlewares
+  app.use(cors());
+
+  // testing
+
+  //   app.get("/", (_: express.Request, res: express.Response) =>
+  //     res.status(200).send({ message: `The GraphQL Tuturial` })
+  //   );
+
+  const apolloServer = new ApolloServer({
+    schema: await buildSchema({
+      resolvers: [HelloResolver, PostResolver],
+      validate: false,
+    }),
+    context: () => ({ em: orm.em }),
   });
 
-  orm.em.persistAndFlush(post);
-  console.log(post.title);
+  // await for the server to start
+  await apolloServer.start();
+
+  // create the graphql server on the express app
+
+  apolloServer.applyMiddleware({ app });
+
+  app.listen(4000, () => {
+    console.log(`Server started on port http://localhost:4000`);
+  });
+
+  //   console.log("orm", orm);
+
+  //   const post = orm.em.create(Post, {
+  //     createdAt: new Date(),
+  //     title: "OMAMBIA THE PROGRAMMER",
+  //     updatedAt: new Date(),
+  //   });
+
+  //   orm.em.persistAndFlush(post);
+  //   console.log(post.title);
+
+  //   const posts = await orm.em.find(Post, {});
+  //   console.log(posts);
   //   orm.em.nativeInsert(Post, { title: "Some toel" });
 };
 
