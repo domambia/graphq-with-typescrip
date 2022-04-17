@@ -19,11 +19,11 @@ export class User {
   @Property()
   password!: string;
 
-  @Field(() => String)
-  @Property({ type: "date", default: `NOW()` })
+  @Field(() => String, { nullable: true })
+  @Property({ type: "date", onCreate: () => Date.now() })
   createdAt = new Date();
 
-  @Field(() => String)
-  @Property({ type: "date", onUpdate: () => new Date(), default: `NOW()` })
+  @Field(() => String, { nullable: true })
+  @Property({ type: "date", onUpdate: () => Date.now() })
   updatedAt = new Date();
 }

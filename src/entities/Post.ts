@@ -12,11 +12,11 @@ export class Post {
   @Property({ type: "text" })
   title!: string;
 
-  @Field(() => String)
-  @Property({ type: "date", default: `NOW()` })
+  @Field(() => String, { nullable: true })
+  @Property({ type: "date", onCreate: () => Date.now(), nullable: true })
   createdAt = new Date();
 
-  @Field(() => String)
-  @Property({ type: "date", onUpdate: () => `NOW()` })
+  @Field(() => String, { nullable: true })
+  @Property({ type: "date", onUpdate: () => Date.now(), nullable: true })
   updatedAt = new Date();
 }

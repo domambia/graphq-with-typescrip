@@ -9,6 +9,7 @@ import {
   Arg,
   InputType,
   Field,
+  ObjectType,
 } from "type-graphql";
 
 @InputType()
@@ -30,6 +31,21 @@ class UserRegisterInput {
   password!: string;
 }
 
+@ObjectType()
+class FieldError {
+  @Field(() => String) message: string;
+  field: string;
+}
+
+@ObjectType()
+class UserResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+
+  @Field(() => User, { nullable: true })
+  user?: User;
+}
+
 @Resolver()
 export class UserResolver {
   @Query(() => User, { nullable: true })
@@ -38,17 +54,34 @@ export class UserResolver {
     return null;
   }
 
-  @Mutation(() => User)
+  @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UserRegisterInput,
     @Ctx() { em }: MyContext
-  ): Promise<User | null> {
-    const useExists = await em.findOne(User, {
+  ): Promise<UserResponse> {
+    if (options.username.length < 3) {
+      return {
+        errors: [
+          {
+            message: "Username must be at least 3 characters long",
+            field: "username",
+          },
+        ],
+      };
+    }
+    const userExist = await em.findOne(User, {
       $or: [{ username: options.username, email: options.email }],
     });
-    if (useExists) {
-      console.log("User already exists");
-      return null;
+
+    if (userExist) {
+      return {
+        errors: [
+          {
+            message: "Please use other credentials",
+            field: "username, email & password",
+          },
+        ],
+      };
     }
     const hashedPassword = await argon2.hash(options.password);
     const user = em.create(User, {
@@ -59,34 +92,67 @@ export class UserResolver {
       updatedAt: new Date(),
     });
 
-    if (!user) {
-      return null;
+    try {
+      await em.persistAndFlush(user);
+    } catch (error) {
+      return {
+        errors: [
+          {
+            message: "Your account was not cread. Use different account",
+            field: "username  & password",
+          },
+        ],
+      };
     }
 
-    return user;
+    if (!user) {
+      return {
+        errors: [
+          {
+            message: "Your account was not cread.",
+            field: "username  & password",
+          },
+        ],
+      };
+    }
+
+    return { user };
   }
 
-  @Mutation(() => User, { nullable: true })
+  @Mutation(() => UserResponse, { nullable: true })
   async login(
     @Arg("options") options: UserLoginInput,
     @Ctx() { em }: MyContext
-  ): Promise<User | null> {
+  ): Promise<UserResponse> {
     const userExists = await em.findOne(User, {
       username: options.username,
     });
 
     if (!userExists) {
-      console.log("User not found");
-      return null;
+      return {
+        errors: [
+          {
+            message: "User with  credentials does not exist",
+            field: "username",
+          },
+        ],
+      };
     }
 
     const valid = await argon2.verify(userExists.password, options.password);
 
     if (!valid) {
       console.log(`Wrong password or username`);
-      return null;
+      return {
+        errors: [
+          {
+            message: "User with  credentials does not exist",
+            field: "username",
+          },
+        ],
+      };
     }
 
-    return userExists;
+    return { user: userExists };
   }
 }
